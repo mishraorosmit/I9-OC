@@ -1,0 +1,457 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>I9 Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --teal:#B5471B;
+    --teal-bright:#E0672A;
+    --teal-tint:#FBEEE1;
+    --black:#1A1310;
+    --ink:#241B16;
+    --gray:#8A7A6D;
+    --border:#EDE1D3;
+    --white:#ffffff;
+    --page:#FBF6EE;
+    --sidebar-w:250px;
+  }
+  *{ box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+  body{ margin:0; background:var(--page); font-family:'Inter',-apple-system,sans-serif; color:var(--ink); }
+  h1,h2,h3,.display{ font-family:'Space Grotesk','Inter',sans-serif; letter-spacing:-0.01em; }
+  button{ font-family:inherit; }
+  :focus-visible{ outline:2px solid var(--teal-bright); outline-offset:2px; }
+  @media (prefers-reduced-motion: reduce){ *{ transition:none !important; animation:none !important; } }
+
+  /* ---------- shell ---------- */
+  .app{ display:flex; min-height:100vh; }
+  .sidebar{ width:var(--sidebar-w); flex-shrink:0; background:var(--black); color:#fff; display:flex; flex-direction:column; position:sticky; top:0; height:100vh; }
+  .brand{ display:flex; align-items:center; gap:10px; padding:22px 22px 18px; font-family:'Space Grotesk'; font-weight:700; font-size:15px; }
+  .brand .mark{ width:26px; height:26px; border-radius:7px; background:var(--teal-bright); display:inline-flex; align-items:center; justify-content:center; font-family:'Space Grotesk'; font-weight:700; font-size:14px; color:#2A140A; flex-shrink:0; }
+  .brand small{ display:block; font-family:'Inter'; font-weight:500; font-size:11px; color:rgba(255,255,255,.45); margin-top:1px; }
+  nav.nav{ display:flex; flex-direction:column; gap:2px; padding:10px 12px; flex:1; }
+  .nav-item{ display:flex; align-items:center; gap:11px; text-align:left; padding:11px 12px; border-radius:10px; border:none; border-left:3px solid transparent; background:transparent; color:rgba(255,255,255,.62); font-size:13.5px; font-weight:600; cursor:pointer; transition:background .15s, color .15s; }
+  .nav-item .dot{ width:18px; height:18px; border-radius:6px; background:rgba(255,255,255,.12); flex-shrink:0; }
+  .nav-item:hover{ background:rgba(255,255,255,.06); color:#fff; }
+  .nav-item.active{ background:rgba(224,103,42,.18); color:#fff; border-left-color:var(--teal-bright); }
+  .nav-item.active .dot{ background:var(--teal-bright); }
+  .sidebar-foot{ padding:16px 22px 22px; font-size:11.5px; color:rgba(255,255,255,.5); display:flex; align-items:center; gap:8px; border-top:1px solid rgba(255,255,255,.1); }
+  .live-dot{ width:7px; height:7px; border-radius:50%; background:#5FD98A; flex-shrink:0; box-shadow:0 0 0 3px rgba(95,217,138,.18); }
+
+  .main{ flex:1; min-width:0; padding:36px 44px 60px; }
+  .view{ display:none; }
+  .view.active{ display:block; }
+  .view-head{ display:flex; align-items:flex-end; justify-content:space-between; gap:20px; margin-bottom:26px; flex-wrap:wrap; }
+  .view-head h1{ font-size:25px; font-weight:700; margin:0 0 5px; }
+  .view-head p{ margin:0; color:var(--gray); font-size:13.5px; max-width:520px; line-height:1.55; }
+  .head-pill{ display:inline-flex; align-items:center; gap:7px; background:#fff; border:1px solid var(--border); padding:8px 14px; border-radius:999px; font-size:12px; font-weight:700; color:var(--ink); white-space:nowrap; }
+
+  /* ---------- cards ---------- */
+  .card{ background:#fff; border:1px solid var(--border); border-radius:16px; padding:22px 24px; }
+  .card + .card{ margin-top:18px; }
+  .card-title{ font-size:15px; font-weight:700; font-family:'Space Grotesk'; margin:0 0 14px; }
+  .card-sub{ font-size:12.5px; color:var(--gray); margin:-10px 0 16px; line-height:1.5; }
+  .row-2{ display:grid; grid-template-columns:1fr 1fr; gap:18px; align-items:flex-start; }
+  .row-380{ display:grid; grid-template-columns:340px 1fr; gap:18px; align-items:flex-start; }
+  @media (max-width:900px){ .row-2, .row-380{ grid-template-columns:1fr; } }
+
+  /* ---------- stat grid ---------- */
+  .stat-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:18px; }
+  @media (max-width:900px){ .stat-grid{ grid-template-columns:repeat(2,1fr); } }
+  .stat-card{ border:1px solid var(--border); border-radius:14px; padding:16px 18px; background:#FFFCF6; }
+  .stat-val{ font-size:26px; font-weight:700; font-family:'Space Grotesk'; }
+  .stat-lbl{ font-size:11.5px; color:var(--gray); margin-top:3px; }
+  .stat-delta{ font-size:11px; font-weight:700; color:var(--teal-bright); margin-top:6px; }
+
+  /* ---------- buttons ---------- */
+  .btn{ background:var(--teal-bright); color:#fff; text-align:center; padding:11px 18px; border-radius:11px; font-weight:700; font-size:13.5px; box-shadow:0 4px 12px rgba(224,103,42,.25); border:none; cursor:pointer; display:inline-flex; align-items:center; gap:8px; }
+  .btn:hover{ filter:brightness(1.04); }
+  .btn.secondary{ background:#fff; border:1.5px solid var(--black); color:var(--black); box-shadow:none; }
+  .btn.danger-outline{ background:#fff; border:1.5px solid var(--teal-bright); color:var(--teal-bright); box-shadow:none; }
+  .btn.small{ padding:8px 13px; font-size:12px; }
+  .icon-btn{ width:30px; height:30px; border-radius:9px; border:1px solid var(--border); display:inline-flex; align-items:center; justify-content:center; font-size:13px; background:#fff; flex-shrink:0; cursor:pointer; color:var(--ink); }
+  .icon-btn:hover{ background:var(--teal-tint); border-color:#F2D9BE; }
+
+  /* ---------- pills / toggles ---------- */
+  .pill{ display:inline-flex; align-items:center; gap:4px; background:var(--teal-tint); color:var(--teal); font-size:11.5px; font-weight:700; padding:5px 11px; border-radius:999px; border:1px solid #F2D9BE; }
+  .toggle{ width:36px; height:21px; border-radius:99px; background:var(--border); position:relative; display:inline-block; cursor:pointer; border:none; padding:0; flex-shrink:0; }
+  .toggle.on{ background:var(--teal-bright); }
+  .toggle .knob{ width:17px; height:17px; border-radius:50%; background:#fff; position:absolute; top:2px; left:2px; transition:left .15s; }
+  .toggle.on .knob{ left:17px; }
+
+  /* ---------- fields ---------- */
+  .field{ margin-bottom:16px; }
+  .field label{ display:block; font-size:11.5px; font-weight:700; color:var(--gray); margin-bottom:7px; }
+  .field input{ width:100%; border:1px solid var(--border); border-radius:10px; padding:11px 13px; font-size:13.5px; color:var(--ink); background:#FFFCF6; font-weight:600; font-family:inherit; }
+  .field input:focus{ border-color:var(--teal-bright); outline:none; background:#fff; }
+  .field-row{ display:flex; gap:14px; }
+  .field-row .field{ flex:1; }
+  .divider{ height:1px; background:var(--border); margin:18px 0; }
+
+  /* ---------- list / table rows ---------- */
+  .admin-row{ display:flex; align-items:center; gap:12px; padding:13px 0; border-bottom:1px solid #F3E9DA; }
+  .admin-row:last-child{ border-bottom:none; }
+  .admin-row-main{ flex:1; display:flex; flex-direction:column; gap:2px; font-size:13.5px; min-width:0; }
+  .admin-row-main b{ font-weight:700; }
+  .admin-row-main .caption{ font-size:11.5px; color:var(--gray); }
+  .admin-row input{ border:1px solid var(--border); border-radius:8px; padding:7px 9px; font-size:12.5px; font-weight:600; font-family:inherit; width:64px; background:#FFFCF6; }
+  .admin-row input.name-input{ width:100%; font-size:13.5px; }
+  .toolbar{ display:flex; align-items:center; gap:10px; margin-bottom:16px; }
+  .search{ flex:1; border:1px solid var(--border); border-radius:10px; padding:10px 14px; font-size:13px; background:#FFFCF6; font-family:inherit; }
+  .search:focus{ outline:none; border-color:var(--teal-bright); background:#fff; }
+
+  /* ---------- mock map ---------- */
+  .map{ position:relative; border-radius:14px; overflow:hidden; background:
+      radial-gradient(#EFE1CD 1px, transparent 1px) 0 0/20px 20px, #FFFCF6;
+      border:1px solid var(--border); height:300px; }
+  .map-block{ position:absolute; background:#F2E7D6; border:1px solid var(--border); border-radius:6px; }
+  .pin{ position:absolute; width:18px; height:18px; border-radius:50% 50% 50% 0; transform:rotate(-45deg); background:var(--teal-bright); box-shadow:0 3px 6px rgba(11,11,11,.2); border:2px solid #fff; }
+  .pin.claimed{ background:var(--black); }
+  .pin.off{ opacity:.35; }
+  .heat{ position:absolute; border-radius:50%; filter:blur(2px); mix-blend-mode:multiply; }
+  .map-cap{ position:absolute; bottom:12px; left:12px; background:rgba(26,19,16,.85); color:#fff; font-size:11px; font-weight:700; padding:6px 11px; border-radius:999px; }
+
+  /* ---------- chart ---------- */
+  .chart-card svg{ display:block; width:100%; height:auto; }
+  .chart-legend{ display:flex; gap:16px; margin-top:12px; }
+  .chart-legend span{ font-size:11.5px; color:var(--gray); display:flex; align-items:center; gap:6px; }
+  .chart-legend i{ width:9px; height:9px; border-radius:2px; background:var(--teal-bright); display:inline-block; }
+
+  /* ---------- confirm modal ---------- */
+  .modal-overlay{ position:fixed; inset:0; background:rgba(26,19,16,.42); display:none; align-items:center; justify-content:center; z-index:50; padding:20px; }
+  .modal-overlay.open{ display:flex; }
+  .modal{ background:#fff; border-radius:18px; padding:26px 26px 22px; width:100%; max-width:380px; box-shadow:0 20px 50px rgba(11,11,11,.22); }
+  .modal h3{ margin:0 0 8px; font-size:17px; }
+  .modal p{ margin:0 0 20px; font-size:13.5px; color:var(--gray); line-height:1.55; }
+  .modal-actions{ display:flex; gap:10px; justify-content:flex-end; }
+
+  /* ---------- toast ---------- */
+  .toast-wrap{ position:fixed; top:22px; right:22px; display:flex; flex-direction:column; gap:8px; z-index:60; }
+  .toast{ background:var(--black); color:#fff; padding:12px 16px; border-radius:12px; font-size:12.5px; font-weight:600; box-shadow:0 8px 20px rgba(11,11,11,.2); opacity:0; transform:translateY(-6px); transition:opacity .2s, transform .2s; }
+  .toast.show{ opacity:1; transform:translateY(0); }
+
+  /* ---------- mobile sidebar collapse ---------- */
+  @media (max-width:760px){
+    .app{ flex-direction:column; }
+    .sidebar{ width:100%; height:auto; position:relative; flex-direction:row; align-items:center; padding-right:12px; }
+    .brand{ padding:16px 14px; }
+    nav.nav{ flex-direction:row; overflow-x:auto; padding:8px; flex:1; }
+    .nav-item{ white-space:nowrap; border-left:none; border-bottom:3px solid transparent; }
+    .nav-item.active{ border-left-color:transparent; border-bottom-color:var(--teal-bright); }
+    .sidebar-foot{ display:none; }
+    .main{ padding:24px 18px 48px; }
+  }
+
+  /* ---------- small phones ---------- */
+  @media (max-width:600px){
+    .view-head{ flex-direction:column; align-items:stretch; gap:12px; }
+    .view-head .head-pill, .view-head .btn{ width:100%; justify-content:center; }
+    .field-row{ flex-direction:column; gap:0; }
+    .card{ padding:18px 16px; }
+    .card + .card{ margin-top:14px; }
+    .map{ height:220px !important; }
+    .toolbar{ flex-wrap:wrap; }
+    .modal{ padding:22px 20px 18px; }
+    .modal-actions{ flex-direction:column-reverse; }
+    .modal-actions .btn{ width:100%; justify-content:center; }
+  }
+  @media (max-width:420px){
+    .stat-grid{ grid-template-columns:1fr; }
+    .view-head h1{ font-size:21px; }
+    .main{ padding:20px 14px 40px; }
+    .toast-wrap{ left:12px; right:12px; top:14px; }
+    .toast{ width:100%; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand"><span class="mark">9</span><span>I9 Admin<small>Campus point-spawn game</small></span></div>
+    <nav class="nav">
+      <button class="nav-item active" data-view="overview"><span class="dot"></span>Overview</button>
+      <button class="nav-item" data-view="reset"><span class="dot"></span>Leaderboard reset</button>
+      <button class="nav-item" data-view="edit"><span class="dot"></span>Edit</button>
+    </nav>
+    <div class="sidebar-foot"><span class="live-dot"></span>238 players active now</div>
+  </aside>
+
+  <main class="main">
+
+    <!-- OVERVIEW -->
+    <section id="view-overview" class="view active">
+      <div class="view-head">
+        <div>
+          <h1>Overview</h1>
+          <p>How today's hunt is going, at a glance.</p>
+        </div>
+        <span class="head-pill"><span class="live-dot"></span>Updated just now</span>
+      </div>
+
+      <div class="stat-grid">
+        <div class="stat-card"><div class="stat-val">238</div><div class="stat-lbl">Active players now</div></div>
+        <div class="stat-card"><div class="stat-val">612</div><div class="stat-lbl">Points claimed today</div><div class="stat-delta">&#9650; 18% vs yesterday</div></div>
+        <div class="stat-card"><div class="stat-val">14</div><div class="stat-lbl">Spawns live now</div></div>
+        <div class="stat-card"><div class="stat-val">410</div><div class="stat-lbl">Top score this week</div></div>
+      </div>
+
+      <div class="card chart-card">
+        <div class="card-title">Participation over time</div>
+        <div id="chart-participation"></div>
+        <div class="chart-legend"><span><i></i>Active players, last 7 days</span></div>
+      </div>
+
+      <div class="card" style="padding:14px;">
+        <div class="card-title" style="padding:8px 8px 0;">Claim heatmap</div>
+        <div class="map" style="height:200px; margin-top:8px;">
+          <div class="map-block" style="width:64px;height:44px;top:18px;left:18px;"></div>
+          <div class="map-block" style="width:50px;height:66px;top:110px;left:230px;"></div>
+          <div class="heat" style="width:120px;height:120px;left:60px;top:20px;background:radial-gradient(circle, rgba(224,103,42,.55), transparent 70%);"></div>
+          <div class="heat" style="width:90px;height:90px;left:220px;top:90px;background:radial-gradient(circle, rgba(224,103,42,.45), transparent 70%);"></div>
+          <div class="heat" style="width:70px;height:70px;left:150px;top:150px;background:radial-gradient(circle, rgba(224,103,42,.35), transparent 70%);"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Most claimed spots</div>
+        <div class="admin-row"><div class="admin-row-main"><b>Library archway</b><span class="caption">84 claims today</span></div><span class="pill">96% claim rate</span></div>
+        <div class="admin-row"><div class="admin-row-main"><b>Old oak tree</b><span class="caption">61 claims today</span></div><span class="pill">91% claim rate</span></div>
+        <div class="admin-row"><div class="admin-row-main"><b>Clocktower</b><span class="caption">52 claims today</span></div><span class="pill">88% claim rate</span></div>
+        <div class="admin-row"><div class="admin-row-main"><b>Fountain plaza</b><span class="caption">37 claims today</span></div><span class="pill">79% claim rate</span></div>
+      </div>
+    </section>
+
+    <!-- EDIT (spawn points + rotation) -->
+    <section id="view-edit" class="view">
+      <div class="view-head">
+        <div>
+          <h1>Edit</h1>
+          <p>Turn spawn points on or off, adjust value and radius, add new ones, and control how often they rotate.</p>
+        </div>
+        <button class="btn" id="btn-new-point">+ New spawn point</button>
+      </div>
+
+      <div class="row-380">
+        <div class="card" style="padding:14px;">
+          <div class="map" id="points-map" style="height:340px;">
+            <div class="map-block" style="width:64px;height:44px;top:18px;left:18px;"></div>
+            <div class="map-block" style="width:50px;height:66px;top:110px;left:230px;"></div>
+            <div class="map-block" style="width:80px;height:36px;top:230px;left:30px;"></div>
+            <div class="pin" style="top:64px;left:100px;"></div>
+            <div class="pin claimed" style="top:140px;left:250px;"></div>
+            <div class="pin" style="top:200px;left:60px;"></div>
+            <div class="pin off" style="top:270px;left:170px;"></div>
+            <div class="map-cap">4 spawn points on campus map</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="toolbar">
+            <input class="search" id="point-search" placeholder="Search spawn points&hellip;">
+          </div>
+          <div id="points-list">
+            <!-- rows injected by JS -->
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="max-width:480px;">
+        <div class="card-title">Rotation settings</div>
+        <div class="field-row">
+          <div class="field"><label>Rotation interval, minutes</label><input type="text" value="30&ndash;45"></div>
+          <div class="field"><label>Concurrent active points</label><input type="text" value="15"></div>
+        </div>
+        <div class="field"><label>Min distance between spawns, meters</label><input type="text" value="60"></div>
+        <div class="card-sub" style="margin-top:0;">Distance and boundary checks run through Turf.js and PostGIS against the campus polygon.</div>
+        <div class="divider"></div>
+        <button class="btn secondary" id="btn-force-rotate">&#8635; Force rotate now</button>
+        <div class="card-sub" style="margin-top:10px; margin-bottom:0;">This affects every player right away, so we'll confirm before it runs.</div>
+      </div>
+    </section>
+
+    <!-- RESET -->
+    <section id="view-reset" class="view">
+      <div class="view-head">
+        <div>
+          <h1>Leaderboard reset</h1>
+          <p>Manage the weekly reset schedule, or reset right now.</p>
+        </div>
+      </div>
+
+      <div class="card" style="max-width:480px;">
+        <div class="field"><label>Reset day</label><input type="text" value="Sunday, 11:59pm"></div>
+        <div class="admin-row" style="align-items:flex-start;">
+          <div class="admin-row-main"><b style="font-weight:600;">Auto-reset weekly scores</b><span class="caption">Keep all-time totals intact</span></div>
+          <button class="toggle on" data-toggle><span class="knob"></span></button>
+        </div>
+        <div class="card-sub">Runs on pg_cron inside Supabase Postgres, no separate scheduler needed.</div>
+        <div class="divider"></div>
+        <button class="btn danger-outline" id="btn-reset-board">&#8635; Reset leaderboard now</button>
+        <div class="card-sub" style="margin-top:10px; margin-bottom:0;">Weekly ranks clear immediately for every player; all-time points are unaffected.</div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <h3 id="modal-title">Are you sure?</h3>
+    <p id="modal-body">This action can't be undone.</p>
+    <div class="modal-actions">
+      <button class="btn secondary small" id="modal-cancel">Cancel</button>
+      <button class="btn small" id="modal-confirm">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<script>
+  // ---------- nav switching ----------
+  const navItems = document.querySelectorAll('.nav-item');
+  navItems.forEach(item=>{
+    item.addEventListener('click', ()=>{
+      navItems.forEach(i=>i.classList.remove('active'));
+      item.classList.add('active');
+      document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+      document.getElementById('view-'+item.dataset.view).classList.add('active');
+    });
+  });
+
+  // ---------- toggles ----------
+  document.addEventListener('click', e=>{
+    const t = e.target.closest('[data-toggle], .admin-row .toggle');
+    if(t) t.classList.toggle('on');
+  });
+
+  // ---------- toast ----------
+  function showToast(msg){
+    const wrap = document.getElementById('toast-wrap');
+    const el = document.createElement('div');
+    el.className = 'toast';
+    el.textContent = msg;
+    wrap.appendChild(el);
+    requestAnimationFrame(()=>el.classList.add('show'));
+    setTimeout(()=>{ el.classList.remove('show'); setTimeout(()=>el.remove(),250); }, 3200);
+  }
+
+  // ---------- confirm modal ----------
+  const overlay = document.getElementById('modal-overlay');
+  const modalTitle = document.getElementById('modal-title');
+  const modalBody = document.getElementById('modal-body');
+  let confirmAction = null;
+  function openConfirm(title, body, onConfirm){
+    modalTitle.textContent = title;
+    modalBody.textContent = body;
+    confirmAction = onConfirm;
+    overlay.classList.add('open');
+  }
+  document.getElementById('modal-cancel').addEventListener('click', ()=>overlay.classList.remove('open'));
+  overlay.addEventListener('click', e=>{ if(e.target === overlay) overlay.classList.remove('open'); });
+  document.getElementById('modal-confirm').addEventListener('click', ()=>{
+    overlay.classList.remove('open');
+    if(confirmAction) confirmAction();
+  });
+
+  document.getElementById('btn-force-rotate').addEventListener('click', ()=>{
+    openConfirm('Force rotate now?', 'All 15 active spawn points will move immediately. Every player will see the map change right away.', ()=>showToast('Spawn points rotated'));
+  });
+  document.getElementById('btn-reset-board').addEventListener('click', ()=>{
+    openConfirm('Reset leaderboard now?', 'Weekly ranks clear immediately for every player. All-time points are unaffected.', ()=>showToast('Weekly leaderboard reset'));
+  });
+
+  // ---------- spawn points list ----------
+  const pointsData = [
+    { name:'Library archway', pts:10, radius:15, on:true },
+    { name:'Old oak tree', pts:15, radius:20, on:true },
+    { name:'Fountain plaza', pts:10, radius:15, on:false },
+    { name:'Clocktower', pts:20, radius:12, on:true },
+  ];
+  const pointsList = document.getElementById('points-list');
+
+  function renderPoints(filter){
+    pointsList.innerHTML = '';
+    pointsData
+      .filter(p => !filter || p.name.toLowerCase().includes(filter.toLowerCase()))
+      .forEach((p, idx) => {
+        const row = document.createElement('div');
+        row.className = 'admin-row';
+        row.innerHTML = `
+          <div class="admin-row-main"><b>${p.name}</b><span class="caption">${p.pts} pts &middot; ${p.radius}m radius</span></div>
+          <button class="toggle ${p.on ? 'on' : ''}" data-toggle aria-label="Toggle ${p.name}"><span class="knob"></span></button>
+          <span class="icon-btn" data-edit="${idx}" title="Edit">&#9998;</span>
+        `;
+        pointsList.appendChild(row);
+      });
+  }
+  renderPoints('');
+
+  document.getElementById('point-search').addEventListener('input', e => renderPoints(e.target.value));
+
+  pointsList.addEventListener('click', e=>{
+    const editBtn = e.target.closest('[data-edit]');
+    if(!editBtn) return;
+    const idx = Number(editBtn.dataset.edit);
+    const p = pointsData[idx];
+    const row = editBtn.closest('.admin-row');
+    row.innerHTML = `
+      <div class="admin-row-main">
+        <input class="name-input" value="${p.name}">
+        <div style="display:flex; gap:6px; margin-top:6px;">
+          <input type="number" value="${p.pts}" style="width:56px;"> pts
+          <input type="number" value="${p.radius}" style="width:56px; margin-left:8px;"> m radius
+        </div>
+      </div>
+      <span class="icon-btn" data-save="${idx}" title="Save">&#10003;</span>
+    `;
+    const [nameInput, ptsInput, radiusInput] = row.querySelectorAll('input');
+    row.querySelector('[data-save]').addEventListener('click', ()=>{
+      pointsData[idx] = { ...p, name:nameInput.value || p.name, pts:Number(ptsInput.value)||p.pts, radius:Number(radiusInput.value)||p.radius };
+      renderPoints(document.getElementById('point-search').value);
+      showToast('Spawn point updated');
+    });
+  });
+
+  document.getElementById('btn-new-point').addEventListener('click', ()=>{
+    pointsData.unshift({ name:'New spawn point', pts:10, radius:15, on:true });
+    renderPoints('');
+    showToast('New spawn point added');
+  });
+
+  // ---------- simple SVG line/area charts, no external deps ----------
+  function drawChart(containerId, values, width=560, height=170){
+    const el = document.getElementById(containerId);
+    const pad = 10;
+    const max = Math.max(...values) * 1.15;
+    const min = 0;
+    const stepX = (width - pad*2) / (values.length - 1);
+    const toY = v => height - pad - ((v - min) / (max - min)) * (height - pad*2);
+    const pts = values.map((v,i)=> [pad + i*stepX, toY(v)]);
+    const line = pts.map((p,i)=> (i===0?'M':'L') + p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ');
+    const area = line + ` L${pts[pts.length-1][0].toFixed(1)},${height-pad} L${pts[0][0].toFixed(1)},${height-pad} Z`;
+    const gradId = containerId + '-grad';
+    el.innerHTML = `
+      <svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" role="img" aria-label="Trend chart">
+        <defs>
+          <linearGradient id="${gradId}" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#E0672A" stop-opacity="0.28"/>
+            <stop offset="100%" stop-color="#E0672A" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <path d="${area}" fill="url(#${gradId})" stroke="none"></path>
+        <path d="${line}" fill="none" stroke="#E0672A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path>
+        ${pts.map(p=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3" fill="#fff" stroke="#E0672A" stroke-width="2"></circle>`).join('')}
+      </svg>`;
+  }
+  drawChart('chart-participation', [120, 160, 145, 210, 190, 260, 238]);
+</script>
+
+</body>
+</html>
