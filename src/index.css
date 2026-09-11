@@ -1,1 +1,58 @@
-@import "tailwindcss"
+﻿@import "tailwindcss";
+
+/* -------------------------------------------------------------------------
+ * I9 Live User Location Marker Styles
+ * ------------------------------------------------------------------------- */
+.user-dot-wrap {
+  transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+  pointer-events: none;
+}
+
+.user-ring {
+  transform-origin: center;
+  animation: user-ring-pulse 2.5s ease-out infinite;
+  transition: r 0.4s ease-out;
+}
+
+.user-dot {
+  transform-origin: center;
+  animation: user-dot-glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes user-ring-pulse {
+  0% {
+    opacity: 0.7;
+    transform: scale(0.96);
+  }
+  50% {
+    opacity: 0.25;
+    transform: scale(1.04);
+  }
+  100% {
+    opacity: 0.7;
+    transform: scale(0.96);
+  }
+}
+
+@keyframes user-dot-glow {
+  0% {
+    filter: drop-shadow(0 0 2px rgba(224, 103, 42, 0.4));
+  }
+  100% {
+    filter: drop-shadow(0 0 7px rgba(224, 103, 42, 0.85));
+  }
+}
+
+/* -------------------------------------------------------------------------
+ * I9 Claim Toast Animation
+ * ------------------------------------------------------------------------- */
+@keyframes i9-toast-in {
+  0% {
+    opacity: 0;
+    transform: translateY(16px) scale(0.92);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}

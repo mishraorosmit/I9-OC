@@ -1,15 +1,16 @@
 import { useState } from "react";
+import MapPage from "./pages/MapPage";
 import LeaderboardPage from "./pages/LeaderboardPage";
 import ProfilePage from "./pages/ProfilePage";
 
-// This App.jsx is a quick local preview only — for seeing your two
+// This App.jsx is a quick local preview only — for seeing your
 // pages work inside a real tab bar before they're wired into the
 // actual app's navigation (which your team lead will set up, likely
 // with React Router). Once that's in place, this file goes back to
 // rendering the real app instead of this preview.
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState("leaderboard"); // "map" | "leaderboard" | "profile"
+  const [activeTab, setActiveTab] = useState("map"); // "map" | "leaderboard" | "profile"
 
   return (
     <div style={{ display: "flex", justifyContent: "center", padding: "32px", background: "#eee", minHeight: "100vh" }}>
@@ -27,11 +28,7 @@ export default function App() {
       >
         {/* Screen content — swaps based on the active tab */}
         <div style={{ flex: 1, overflow: "hidden" }}>
-          {activeTab === "map" && (
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", color: "#8A7A6D", fontSize: "13px" }}>
-              Map page — not built yet
-            </div>
-          )}
+          {activeTab === "map" && <MapPage />}
           {activeTab === "leaderboard" && <LeaderboardPage />}
           {activeTab === "profile" && <ProfilePage />}
         </div>
